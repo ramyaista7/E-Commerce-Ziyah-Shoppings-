@@ -167,24 +167,27 @@
 
       alert("Item added to cart!");
     }
+function buyNow(index) {
+  const item = wishlist[index];
+  const quantity = parseInt(document.getElementById(`quantity-${index}`).value);
+  const size = document.getElementById(`size-${index}`).value;
 
-    function buyNow(index) {
-      const item = wishlist[index];
-      const quantity = parseInt(document.getElementById(`quantity-${index}`).value);
-      const size = document.getElementById(`size-${index}`).value;
+  if (!quantity || quantity < 1) return alert("Please enter a valid quantity");
 
-      if (!quantity || quantity < 1) return alert("Please enter a valid quantity");
+  const buyItem = {
+    ...item,
+    quantity,
+    size,
+    totalPrice: quantity * parseInt(item.price)
+  };
 
-      const buyItem = {
-        ...item,
-        quantity,
-        size,
-        total: quantity * parseInt(item.price)
-      };
+  // Save using both keys to maintain compatibility
+  localStorage.setItem("buyNowItem", JSON.stringify(buyItem)); // optional
+  localStorage.setItem("checkout", JSON.stringify(buyItem));   // ✅ this is required by payment.html
 
-      localStorage.setItem("buyNowItem", JSON.stringify(buyItem));
-      window.location.href = "payment.html";
-    }
+  window.location.href = "payment.html";
+}
+
 
     function removeFromWishlist(index) {
       wishlist.splice(index, 1);

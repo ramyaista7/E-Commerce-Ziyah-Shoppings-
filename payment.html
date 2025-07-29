@@ -178,7 +178,8 @@
   <audio id="success-sound" src="audio.wav" preload="auto"></audio>
 
   <script>
-    const data = JSON.parse(localStorage.getItem("buyNowItem"));
+   const data = JSON.parse(localStorage.getItem("checkout"));
+
 
     const box = document.getElementById("success-message");
     const sound = document.getElementById("success-sound");
@@ -256,7 +257,7 @@
           : "<p style='margin-top:15px;'>💵 Your order will be collected on delivery.</p>"}
       `;
 
-      localStorage.removeItem("buyNowItem");
+      localStorage.removeItem("checkout");
 
     }
   </script>
