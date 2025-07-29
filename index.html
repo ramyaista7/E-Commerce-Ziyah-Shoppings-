@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ziyah Shoppings</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Splash screen styles */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #fff;
+      z-index: 9999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #splash-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <img src="ziyah logo.png" alt="Ziyah Shoppings Logo">
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">🛍️ ZIYAH SHOPPINGS</div>
+    <nav>
+      <a href="index.html">🏠 Home</a>
+      <a href="women.html">👗 Women's Fashion</a>
+      <a href="men.html">👕 Men's Fashion</a>
+      <a href="wishlist.html">❤️ wishlist</a>
+      <a href="cart.html">🛒 Cart</a>
+    </nav>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search for products..." oninput="showSuggestions()" />
+    <div class="suggestions" id="suggestions"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Welcome to Ziyah Shoppings</h1>
+    <p>Explore trendy collections for Men & Women!</p>
+
+    <div class="hero-buttons" id="productContainer">
+      <div class="hero-card" data-name="Bridal Gown" data-image="images/women/bridal gown.webp" data-price="1200">
+        <img src="images/women/bridal gown.webp" alt="Bridal Gown">
+        <h3>Bridal Gown</h3>
+      </div>
+      <div class="hero-card" data-name="Rigid Baggy Fit Denim Jeans"
+        data-image="images/women/men/rigid baggy fit denim jeans.webp" data-price="999">
+        <img src="images/women/men/rigid baggy fit denim jeans.webp" alt="Denim Jeans">
+        <h3>Denim Jeans</h3>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Ziyah Shoppings. All rights reserved.
+  </footer>
+
+  <script>
+    const allProducts = [
+      { id: 1, name: "Baggy Jeans", image: "images/women/baggy jean.webp", price: 999 },
+      { id: 2, name: "Blue Lace Gown", image: "images/women/blue lace gown.webp", price: 899 },
+      { id: 3, name: "Bridal Gown", image: "images/women/bridal gown.webp", price: 9999 },
+      { id: 4, name: "Cocktail Dress", image: "images/women/cocktail dress.webp", price: 1550 },
+      { id: 5, name: "Dazzle Evening Dress", image: "images/women/dazzle evening dress.webp", price: 1729 },
+      { id: 6, name: "Designer Party Wear", image: "images/women/designer party wear.webp", price: 2899 },
+      { id: 7, name: "Embroidered Ethnic Dress", image: "images/women/embroidered ethinic dress.webp", price: 5999 },
+      { id: 8, name: "Flared Ethnic Dress", image: "images/women/flared ethinic dress.webp", price: 1859 },
+      { id: 9, name: "Half Saree", image: "images/women/half saree.webp", price: 2999 },
+      { id: 10, name: "Light Pink Party Wear", image: "images/women/light pink party wear.webp", price: 1529 },
+      { id: 11, name: "Midnight Blue", image: "images/women/midnight blue.webp", price: 1119 },
+      { id: 12, name: "Multi Color Dress", image: "images/women/miss chase womens multi colour.webp", price: 899 },
+      { id: 13, name: "Neck Crop", image: "images/women/neck crop.webp", price: 399 },
+      { id: 14, name: "Red Bridal Gown", image: "images/women/red bridal gown.jpg", price: 1999 },
+      { id: 15, name: "Stylish Ravishing", image: "images/women/stylish ravishing.webp", price: 1239 },
+      { id: 16, name: "Short Gown", image: "images/women/short gown.jpg", price: 759 },
+      { id: 17, name: "Traditional Saree", image: "images/women/traditional saree.webp", price: 1899 },
+      { id: 18, name: "Western Saree", image: "images/women/western saree.webp", price: 1599 },
+      { id: 1, name: "blue slim fit jean", image: "images/women/men/blue slim fit jean.webp", price: 799 },
+      { id: 2, name: "rigid baggy fit denim jeans", image: "images/women/men/rigid baggy fit denim jeans.webp", price: 1199 },
+      { id: 3, name: "shorts night suit set", image: "images/women/men/shorts night suit set.webp", price: 899 },
+      { id: 4, name: "white night suit set", image: "images/women/men/white night suit set.webp", price: 1050 },
+      { id: 5, name: "Black suit", image: "images/women/men/black suit.jpg", price: 1929 },
+      { id: 6, name: "Blue baggy jean", image: "images/women/men/blue baggy jean.jpg", price: 1089 },
+      { id: 7, name: "Embroidered Dress", image: "images/women/men/embroidered dress.webp", price: 3999 },
+      { id: 8, name: "Designer shirts ", image: "images/women/men/designer shirts.jpg", price: 1959 },
+      { id: 9, name: "Grey suit", image: "images/women/men/grey suit.jpg", price: 1899 },
+      { id: 10, name: "Indian ethinic Wear", image: "images/women/men/indian ethinic wear.jpg", price: 1529 },
+      { id: 11, name: "Korean style", image: "images/women/men/korean style wear.jpg", price: 1119 },
+      { id: 12, name: "Men formal shirts", image: "images/women/men/men formal shirts.jpg", price: 999 },
+      { id: 13, name: "Nobera men t-shirt", image: "images/women/men/nobera men t-shirt.jpg", price: 469 },
+      { id: 14, name: "Pure cotton shirt", image: "images/women/men/pure cotton shirt.jpg", price: 699 },
+      { id: 15, name: "Short set", image: "images/women/men/short set.jpg", price: 739 },
+      { id: 16, name: "Shorts", image: "images/women/men/shorts.jpg", price: 299 },
+      { id: 17, name: "Solid color long", image: "images/women/men/solid color long.jpg", price: 799 },
+      { id: 18, name: "Solid men T-shirt", image: "images/women/men/solid men T-shirt.jpg", price: 599 },
+      { id: 19, name: "White shirt", image: "images/women/men/white shirt.jpg", price: 999 },
+      { id: 20, name: "White T-shirt", image: "images/women/men/white T-shirt.jpg", price: 499 },
+    ];
+
+    function showSuggestions() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const suggestionsDiv = document.getElementById('suggestions');
+      suggestionsDiv.innerHTML = '';
+
+      if (input === '') {
+        suggestionsDiv.style.display = 'none';
+        return;
+      }
+
+      const filtered = allProducts.filter(p => p.name.toLowerCase().includes(input));
+
+      if (filtered.length > 0) {
+        filtered.forEach(product => {
+          const suggestionItem = document.createElement('div');
+          suggestionItem.className = 'suggestion-item';
+          suggestionItem.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <div class="suggestion-details">
+              <h4>${product.name}</h4>
+              <p>₹${product.price}</p>
+              <button onclick='addToCart(${JSON.stringify(product)})'>Add to Cart</button>
+              <button onclick='buyNow(${JSON.stringify(product)})'>Buy Now</button>
+            </div>`;
+          suggestionsDiv.appendChild(suggestionItem);
+        });
+        suggestionsDiv.style.display = 'block';
+      } else {
+        suggestionsDiv.innerHTML = '<p style="padding:10px;">No results found.</p>';
+        suggestionsDiv.style.display = 'block';
+      }
+    }
+
+    function addToCart(product) {
+      alert("Added to cart: " + product.name);
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.push(product);
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    function buyNow(product) {
+      localStorage.setItem("checkout", JSON.stringify(product));
+      window.location.href = "payment.html";
+    }
+
+    // Splash screen logic
+    window.addEventListener('load', () => {
+      const splashShown = sessionStorage.getItem("splashShown");
+      if (!splashShown) {
+        document.getElementById("splash-screen").style.display = "flex";
+        setTimeout(() => {
+          document.getElementById("splash-screen").style.display = "none";
+          sessionStorage.setItem("splashShown", "true");
+        }, 2500);
+      }
+    });
+
+    // ✅ Hide suggestions when clicking outside
+    document.addEventListener("click", function (event) {
+      const input = document.getElementById("searchInput");
+      const suggestions = document.getElementById("suggestions");
+      if (!input.contains(event.target) && !suggestions.contains(event.target)) {
+        suggestions.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+

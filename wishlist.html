@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Wishlist - Ziyah Shoppings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #dfe9f3, #ffffff);
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: lightpink;
+      padding: 15px;
+      color: white;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .product {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      margin: 15px;
+      width: 260px;
+      text-align: center;
+    }
+
+    .product img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .product h3 {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .product p {
+      margin: 5px 0;
+    }
+
+    .product .options {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .product .options label {
+      font-size: 14px;
+    }
+
+    .product select,
+    .product input[type='number'] {
+      width: 80px;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+
+    .product button {
+      margin: 5px 3px;
+      padding: 6px 10px;
+      border: none;
+      background-color: lightseagreen;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .product button:hover {
+      background-color: seagreen;
+    }
+
+    .product button.remove {
+      background-color: #dc3545;
+    }
+
+    .product button.remove:hover {
+      background-color: #b52a37;
+    }
+
+    .empty {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">My Wishlist 💖</div>
+  <div class="container" id="wishlistContainer"></div>
+
+  <script>
+    const wishlistContainer = document.getElementById("wishlistContainer");
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    if (wishlist.length === 0) {
+      wishlistContainer.innerHTML = '<div class="empty">Your wishlist is empty 🥺💔</div>';
+    } else {
+      wishlist.forEach((item, index) => {
+        const product = document.createElement("div");
+        product.className = "product";
+
+        product.innerHTML = `
+          <img src="${item.image}" alt="${item.name}">
+          <h3>${item.name}</h3>
+          <p><strong>Price:</strong> ₹${item.price}</p>
+          <div class="options">
+            <div>
+              <label>Size:</label><br>
+              <select id="size-${index}">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+              </select>
+            </div>
+            <div>
+              <label>Quantity:</label><br>
+              <input type="number" id="quantity-${index}" min="1" value="1">
+            </div>
+          </div>
+          <button onclick='addToCart(${index})'>Add to Cart</button>
+          <button onclick='buyNow(${index})'>Buy Now</button>
+          <button class="remove" onclick='removeFromWishlist(${index})'>Remove</button>
+        `;
+
+        wishlistContainer.appendChild(product);
+      });
+    }
+
+    function addToCart(index) {
+      const item = wishlist[index];
+      const quantity = parseInt(document.getElementById(`quantity-${index}`).value);
+      const size = document.getElementById(`size-${index}`).value;
+
+      if (!quantity || quantity < 1) return alert("Please enter a valid quantity");
+
+      const cartItem = {
+        ...item,
+        quantity,
+        size,
+        total: quantity * parseInt(item.price)
+      };
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.push(cartItem);
+      localStorage.setItem("cart", JSON.stringify(cart));
+
+      alert("Item added to cart!");
+    }
+
+    function buyNow(index) {
+      const item = wishlist[index];
+      const quantity = parseInt(document.getElementById(`quantity-${index}`).value);
+      const size = document.getElementById(`size-${index}`).value;
+
+      if (!quantity || quantity < 1) return alert("Please enter a valid quantity");
+
+      const buyItem = {
+        ...item,
+        quantity,
+        size,
+        total: quantity * parseInt(item.price)
+      };
+
+      localStorage.setItem("buyNowItem", JSON.stringify(buyItem));
+      window.location.href = "payment.html";
+    }
+
+    function removeFromWishlist(index) {
+      wishlist.splice(index, 1);
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      location.reload();
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+

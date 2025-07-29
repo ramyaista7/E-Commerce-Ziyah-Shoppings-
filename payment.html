@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment</title>
+  <style>
+    /* Your original CSS (unchanged) */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f8e6ff, #e0f7fa);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    .payment-options {
+      margin-top: 40px;
+    }
+
+    .pay-btn {
+      margin: 10px;
+      padding: 12px 25px;
+      background-color: #7e57c2;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .pay-btn:hover {
+      background-color: #5e35b1;
+    }
+
+    .success-box {
+      display: none;
+      background-color: lightcyan;
+      border-radius: 20px;
+      padding: 30px;
+      margin-top: 40px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      animation: pop 0.5s ease-out;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .success-box img {
+      max-width: 220px;
+      border-radius: 15px;
+      border: 3px solid #e6d1ff;
+      margin-bottom: 20px;
+    }
+
+    .success-box h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .success-box p {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+
+    .home-btn,
+    .download-btn {
+      margin: 10px;
+      padding: 12px 25px;
+      background-color: #7e57c2;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.3s ease;
+    }
+
+    .home-btn:hover,
+    .download-btn:hover {
+      background-color: #5e35b1;
+    }
+
+    .delivery-tracker {
+      margin: 30px auto;
+      display: flex;
+      justify-content: space-around;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .delivery-tracker::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background-color: #ccc;
+      z-index: 0;
+    }
+
+    .tracker-step {
+      background: white;
+      padding: 10px 15px;
+      border-radius: 50%;
+      border: 3px solid #ccc;
+      z-index: 1;
+      position: relative;
+      transition: 0.3s;
+    }
+
+    .active {
+      background-color: #7e57c2;
+      color: white;
+      border-color: #5e35b1;
+    }
+
+    .phonepe-ui {
+      margin-top: 20px;
+      padding: 15px;
+      border: 2px dashed #8e24aa;
+      border-radius: 10px;
+      background-color: #f3e5f5;
+    }
+
+    /* ✅ Decorated heading */
+    #payment-heading {
+      font-size: 28px;
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+      padding: 15px 25px;
+      border-radius: 20px;
+      display: inline-block;
+      border: 2px dashed #ba68c8;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-shadow: 1px 1px white;
+      animation: fadeInScale 0.5s ease;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+
+  <!-- 🎉 Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+  <h2 id="payment-heading">Choose Your Payment Method</h2>
+
+  <div class="payment-options" id="payment-buttons">
+    <button class="pay-btn" onclick="processPayment('PhonePe')">📱 PhonePe</button>
+    <button class="pay-btn" onclick="processPayment('Cash on Delivery')">💵 Cash on Delivery</button>
+  </div>
+
+  <div class="success-box" id="success-message"></div>
+
+  <audio id="success-sound" src="audio.wav" preload="auto"></audio>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("buyNowItem"));
+
+    const box = document.getElementById("success-message");
+    const sound = document.getElementById("success-sound");
+
+    function generateDeliveryDate() {
+      const now = new Date();
+      now.setDate(now.getDate() + 3);
+      return now.toDateString();
+    }
+
+    function downloadInvoice(data, paymentMethod) {
+      const invoice = `Invoice\n\nProduct: ${data.name}\nQuantity: ${data.quantity}\nSize: ${data.size}\nTotal Paid: Rs. ${data.totalPrice}\nPayment Method: ${paymentMethod}\nExpected Delivery: ${generateDeliveryDate()}\n\nThank you for shopping with Ziyah Shoppings!`;
+      const blob = new Blob([invoice], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'invoice.txt';
+      link.click();
+    }
+
+    function launchConfetti() {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+
+        confetti({
+          particleCount: 40,
+          origin: {
+            x: Math.random(),
+            y: Math.random() - 0.2
+          },
+          ...defaults
+        });
+      }, 250);
+    }
+
+    function processPayment(method) {
+      if (!data) return;
+
+      document.getElementById("payment-heading").style.display = "none";
+      document.getElementById("payment-buttons").style.display = "none";
+
+      sound.play();
+      box.style.display = "block";
+      launchConfetti();
+
+      const statusText = method === "PhonePe" ? "Payment Successful! ✅" : "Order Placed Successfully 📦";
+
+      box.innerHTML = `
+        <img src="${data.image}" alt="${data.name}" />
+        <h2>${statusText}</h2>
+        <p><strong>Product:</strong> ${data.name}</p>
+        <p><strong>Quantity:</strong> ${data.quantity}</p>
+        <p><strong>Size:</strong> ${data.size}</p>
+        <p><strong>Price per item:</strong> Rs. ${data.price}</p>
+        <p><strong>Subtotal:</strong> Rs. ${data.totalPrice}</p>
+        <p><strong>Payment Method:</strong> ${method}</p>
+        <p>🕒 Ordered on: ${new Date().toLocaleString()}</p>
+        <p>🚚 Expected Delivery: ${generateDeliveryDate()}</p>
+
+        <div class="delivery-tracker">
+          <div class="tracker-step active">Order Placed</div>
+          <div class="tracker-step">Near Hub</div>
+          <div class="tracker-step">Delivered</div>
+        </div>
+
+        <p style="color: green; font-weight: bold;">Thank You for Ordering from Ziyah Shoppings!</p>
+        <button class="download-btn" onclick='downloadInvoice(${JSON.stringify(data)}, "${method}")'>📄 Download Invoice</button>
+        <a class="home-btn" href="index.html">🏠 Go to Home</a>
+        ${method === "PhonePe"
+          ? "<div class='phonepe-ui'><p>📱 Simulated PhonePe UI: UPI Payment Done Successfully!</p></div>"
+          : "<p style='margin-top:15px;'>💵 Your order will be collected on delivery.</p>"}
+      `;
+
+      localStorage.removeItem("buyNowItem");
+
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

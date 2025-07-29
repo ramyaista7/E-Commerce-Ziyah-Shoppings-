@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart - Ziyah Shoppings</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #fceabb, lightyellow);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      padding: 20px;
+      background-color: #ff5f6d;
+      margin: 0;
+      border-radius: 8px;
+      font-size: 32px;
+      letter-spacing: 1px;
+    }
+
+    .cart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .cart-item {
+      display: flex;
+      background: linear-gradient(to right, #ffffff, #f9f9f9);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      transition: transform 0.2s;
+    }
+
+    .cart-item:hover {
+      transform: scale(1.02);
+    }
+
+    .cart-image {
+      width: 120px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+    }
+
+    .cart-details {
+      padding-left: 20px;
+      flex-grow: 1;
+    }
+
+    .cart-details h4 {
+      margin: 5px 0;
+      color: #333;
+      font-size: 20px;
+    }
+
+    .quantity-input, .size-select {
+      width: 60px;
+      padding: 6px;
+      margin-left: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .thank-you {
+      text-align: center;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: 40px auto;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .thank-you h3 {
+      color: #2e7d32;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    #cart-actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #proceedToPayBtn {
+      padding: 12px 30px;
+      font-size: 16px;
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+
+    #proceedToPayBtn:hover {
+      background: linear-gradient(to right, #00a08b, #7bb32b);
+    }
+
+    input[type="checkbox"] {
+      transform: scale(1.3);
+      accent-color: #ff5f6d;
+    }
+
+    ul li strong {
+      color: #2c3e50;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .payment-method {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .payment-method label {
+      margin: 0 20px;
+    }
+
+    /* 🎆 Crackers Animation */
+    #crackers {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .cracker {
+      width: 6px;
+      height: 6px;
+      position: absolute;
+      background: #ff4081;
+      border-radius: 50%;
+      animation: explode 800ms ease-out forwards;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(1); opacity: 1; }
+      100% {
+        transform: scale(0.1) translate(var(--x), var(--y));
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Your Shopping Cart</h1>
+<div class="cart-container" id="cartContainer"></div>
+
+<div class="payment-method" id="payment-options">
+  <label><input type="radio" name="payment" value="PhonePe" checked> 📱 PhonePe</label>
+  <label><input type="radio" name="payment" value="Cash on Delivery"> 💵 Cash on Delivery</label>
+</div>
+ <audio id="success-audio" src="audio.wav"></audio>
+
+
+<div id="cart-actions">
+  <button id="proceedToPayBtn">Proceed to Pay</button>
+</div>
+
+<div id="crackers"></div>
+
+<script>
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+  const cartContainer = document.getElementById("cartContainer");
+ const sound = document.getElementById("success-audio");
+
+
+  function displayCartItems() {
+    cartContainer.innerHTML = "";
+
+    if (cartItems.length === 0) {
+      cartContainer.innerHTML = `
+        <div style="text-align:center; margin-top: 50px; color: black; font-size: 22px; background: lightgreen; padding: 30px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+          🛒 Your cart is empty!<br>Please add items to view them here.
+          <div style="margin-top: 20px;">
+            <button onclick="window.location.href='index.html'" style="padding: 10px 20px; background: green; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">🏠 Go to Home</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('cart-actions').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('cart-actions').style.display = 'block';
+
+    cartItems.forEach((item, index) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "cart-item";
+
+      itemDiv.innerHTML = `
+        <input type="checkbox" class="item-select" data-index="${index}" style="margin-right:10px;" checked>
+        <img src="${item.image}" alt="${item.name}" class="cart-image">
+        <div class="cart-details">
+          <h4>${item.name}</h4>
+          <label>Size:
+            <select id="size-${index}" class="size-select">
+              <option value="S" ${item.size === 'S' ? 'selected' : ''}>S</option>
+              <option value="M" ${item.size === 'M' || !item.size ? 'selected' : ''}>M</option>
+              <option value="L" ${item.size === 'L' ? 'selected' : ''}>L</option>
+              <option value="XL" ${item.size === 'XL' ? 'selected' : ''}>XL</option>
+            </select>
+          </label>
+          <p>Price: Rs. ${item.price}</p>
+          <label>Quantity:
+            <input type="number" class="quantity-input" id="qty-${index}" value="${item.quantity || 1}" min="1">
+          </label>
+        </div>
+      `;
+
+      cartContainer.appendChild(itemDiv);
+    });
+  }
+
+  displayCartItems();
+
+  document.getElementById('proceedToPayBtn').addEventListener('click', () => {
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "Cash on Delivery";
+    const checkboxes = document.querySelectorAll('.item-select:checked');
+
+    if (checkboxes.length === 0) {
+      alert('Please select at least one item to proceed.');
+      return;
+    }
+
+    let total = 0;
+    let summaryHTML = `<h3>🎉 Congratulations!<br>${paymentMethod === 'PhonePe' ? '✅ Payment Successful' : '🛒 Order Placed Successfully'}</h3><ul style="list-style: none; padding: 0; margin-top: 20px;">`;
+    const purchasedItems = [];
+
+    checkboxes.forEach(cb => {
+      const index = parseInt(cb.getAttribute('data-index'));
+      const item = cartItems[index];
+      const qty = parseInt(document.getElementById(`qty-${index}`).value);
+      const size = document.getElementById(`size-${index}`).value;
+      const subtotal = item.price * qty;
+      total += subtotal;
+
+      purchasedItems.push({ ...item, quantity: qty, size, subtotal });
+
+      summaryHTML += `
+        <li style="margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; display:flex; gap:15px; align-items:center;">
+          <img src="${item.image}" style="width:80px; height:100px; object-fit:cover; border-radius:6px;">
+          <div style="text-align:left;">
+            <strong>${item.name}</strong><br>
+            Size: ${size}<br>
+            Quantity: ${qty}<br>
+            Price per item: Rs. ${item.price}<br>
+            Subtotal: Rs. ${subtotal}
+          </div>
+        </li>
+      `;
+    });
+
+    const now = new Date();
+    const delivery = new Date(now.getTime() + 3 * 86400000);
+    const orderTime = now.toLocaleString();
+    const deliveryTime = delivery.toDateString();
+
+    summaryHTML += `</ul><h4 style="color:#2e7d32; margin-top: 20px;">${paymentMethod === 'PhonePe' ? 'Total Paid' : 'Total Payable'}: Rs. ${total}</h4>`;
+    summaryHTML += `<p style="color:#333;">🕒 Ordered on: ${orderTime}</p>`;
+    summaryHTML += `<p style="color:#333;">🚚 Expected Delivery: ${deliveryTime}</p>`;
+    summaryHTML += `<h2 style="color:#1b5e20;">Thank You for Ordering from Ziyah Shoppings!</h2>`;
+    summaryHTML += `
+      <button onclick="downloadInvoice()" style="margin-top:10px; padding:10px 20px; background:#43a047; color:white; border:none; border-radius:6px;">📄 Download Invoice</button>
+      <button onclick="window.location.href='index.html'" style="background:#1976d2; color:white; border:none; padding:10px 20px; margin-top:10px; border-radius:6px; margin-left: 10px;">🏠 Go to Home</button>
+    `;
+
+    const confirmationSection = document.createElement('div');
+    confirmationSection.className = 'thank-you';
+    confirmationSection.innerHTML = summaryHTML;
+
+    cartContainer.innerHTML = '';
+    cartContainer.appendChild(confirmationSection);
+    document.getElementById('cart-actions').style.display = 'none';
+    document.getElementById('payment-options').style.display = 'none';
+
+    localStorage.removeItem('cart');
+    localStorage.setItem("invoiceItems", JSON.stringify(purchasedItems));
+    localStorage.setItem("invoiceTime", orderTime);
+
+    showCrackers();
+    sound.play();
+
+  });
+
+  function downloadInvoice() {
+    const items = JSON.parse(localStorage.getItem("invoiceItems")) || [];
+    const time = localStorage.getItem("invoiceTime") || "";
+    let content = `Ziyah Shoppings - Invoice\nOrdered On: ${time}\n\n`;
+
+    items.forEach((item, i) => {
+      content += `${i + 1}. ${item.name} - Size: ${item.size} - Qty: ${item.quantity} - Price: Rs. ${item.price} - Subtotal: Rs. ${item.subtotal}\n`;
+    });
+
+    const total = items.reduce((sum, i) => sum + i.subtotal, 0);
+    content += `\nTotal Amount: Rs. ${total}\n\nThank you for shopping with Ziyah Shoppings!`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "Invoice_Ziyah_Shoppings.txt";
+    a.click();
+  }
+
+  function showCrackers() {
+    const container = document.getElementById("crackers");
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    (function explodeLoop() {
+      if (Date.now() > end) return;
+
+      for (let i = 0; i < 8; i++) {
+        const c = document.createElement("div");
+        c.className = "cracker";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.top = Math.random() * 100 + "vh";
+        c.style.setProperty('--x', `${Math.random() * 200 - 100}px`);
+        c.style.setProperty('--y', `${Math.random() * 200 - 100}px`);
+        container.appendChild(c);
+        setTimeout(() => container.removeChild(c), 1000);
+      }
+
+      setTimeout(explodeLoop, 100);
+    })();
+  }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

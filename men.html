@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Men's Fashion</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background-color: blue;
+    }
+
+    .navbar .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .navbar nav a {
+      margin: 0 10px;
+      font-weight: bold;
+      text-decoration: none;
+      color: white;
+    }
+
+    .cart-count {
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+      vertical-align: top;
+      margin-left: 5px;
+    }
+
+    .search-bar {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .search-bar input {
+      padding: 8px 12px;
+      font-size: 16px;
+      width: 300px;
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      background: #fff;
+      border: 1px solid #ccc;
+      z-index: 1000;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .suggestions div {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .suggestions div:hover {
+      background-color: #f0f0f0;
+    }
+
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .product {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      width: 180px;
+    }
+
+    .highlight {
+      border: 2px solid green !important;
+      transition: border 0.5s;
+    }
+
+    .wishlist {
+      cursor: pointer;
+      font-size: 20px;
+      margin-left: 8px;
+      vertical-align: middle;
+      transition: color 0.2s;
+    }
+
+    .wishlist.added {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="logo">👕 Men's Fashion</div>
+    <nav>
+      <a href="index.html">Home 🏠</a>
+      <a href="men.html">Women's Fashion 👗</a>
+      <a href="wishlist.html">wishlist ❤️</a>
+      <a href="cart.html">Cart 🛒 <span id="cart-count" class="cart-count">0</span></a>
+    </nav>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search for a dress..." autocomplete="off" />
+    <div id="suggestions" class="suggestions"></div>
+  </div>
+
+  <h2 class="section-title" style="text-align:center">Men's Dresses</h2>
+  <div class="product-grid" id="women-products"></div>
+
+  <footer style="text-align:center; margin-top: 20px;">
+    <p>&copy; 2025 Fashion Hub. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    const products = [
+      { id: 1, name: "blue slim fit jean", image: "images/women/men/blue slim fit jean.webp", price: 799 },
+      { id: 2, name: "rigid baggy fit denim jeans", image: "images/women/men/rigid baggy fit denim jeans.webp", price: 1199 },
+      { id: 3, name: "shorts night suit set", image: "images/women/men/shorts night suit set.webp", price: 899 },
+      { id: 4, name: "white night suit set", image: "images/women/men/white night suit set.webp", price: 1050 },
+      { id: 5, name: "Black suit", image: "images/women/men/black suit.jpg", price: 1929 },
+      { id: 6, name: "Blue baggy jean", image: "images/women/men/blue baggy jean.jpg", price: 1089 },
+      { id: 7, name: "Embroidered Dress", image: "images/women/men/embroidered dress.webp", price: 3999 },
+      { id: 8, name: "Designer shirts ", image: "images/women/men/designer shirts.jpg", price: 1959 },
+      { id: 9, name: "Grey suit", image: "images/women/men/grey suit.jpg", price: 1899 },
+      { id: 10, name: "Indian ethinic Wear", image: "images/women/men/indian ethinic wear.jpg", price: 1529 },
+      { id: 11, name: "Korean style", image: "images/women/men/korean style wear.jpg", price: 1119 },
+      { id: 12, name: "Men formal shirts", image: "images/women/men/men formal shirts.jpg", price: 999 },
+      { id: 13, name: "Nobera men t-shirt", image: "images/women/men/nobera men t-shirt.jpg", price: 469 },
+      { id: 14, name: "Pure cotton shirt", image: "images/women/men/pure cotton shirt.jpg", price: 699 },
+      { id: 15, name: "Short set", image: "images/women/men/short set.jpg", price: 739 },
+      { id: 16, name: "Shorts", image: "images/women/men/shorts.jpg", price: 299 },
+      { id: 17, name: "Solid color long", image: "images/women/men/solid color long.jpg", price: 799 },
+      { id: 18, name: "Solid men T-shirt", image: "images/women/men/solid men T-shirt.jpg", price: 599 },
+      { id: 19, name: "White shirt", image: "images/women/men/white shirt.jpg", price: 999 },
+      { id: 20, name: "White T-shirt", image: "images/women/men/white T-shirt.jpg", price: 499 },
+    ];
+
+    const container = document.getElementById('women-products');
+    const suggestionsBox = document.getElementById("suggestions");
+
+    function renderProducts(list) {
+      container.innerHTML = '';
+      let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      list.forEach((p) => {
+        const isWishlisted = wishlist.find(item => item.name === p.name);
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.id = `product-${p.id}`;
+        div.innerHTML = `
+          <img src="${p.image}" alt="${p.name}" width="150" height="200">
+          <h4>${p.name}</h4>
+          <p>Rs. ${p.price}</p>
+          <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+          <button onclick='buyNow(${JSON.stringify(p)})'>Buy Now</button>
+          <span class="wishlist ${isWishlisted ? 'added' : ''}" onclick='toggleWishlist(this, ${JSON.stringify(p)})'>${isWishlisted ? '❤️' : '🤍'}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    renderProducts(products);
+
+    function addToCart(p) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.push(p);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      alert(`${p.name} added to cart!`);
+    }
+
+    function buyNow(product) {
+      let quantity = prompt("Enter quantity:", "1");
+      quantity = parseInt(quantity);
+      if (!quantity || quantity <= 0) {
+        alert("Please enter a valid quantity.");
+        return;
+      }
+
+      let size = prompt("Enter size (e.g., S, M, L, XL):", "M");
+      size = size.trim().toUpperCase();
+      if (!["S", "M", "L", "XL"].includes(size)) {
+        alert("Please enter a valid size (S, M, L, XL).");
+        return;
+      }
+
+      const total = product.price * quantity;
+      const confirmPurchase = confirm(
+        `You are buying:\n\n${product.name}\nQuantity: ${quantity}\nSize: ${size}\nPrice per item: ₹${product.price}\nTotal: ₹${total}\n\nProceed to payment?`
+      );
+
+      if (!confirmPurchase) return;
+
+      const checkoutProduct = {
+        ...product,
+        quantity,
+        size,
+        totalPrice: total
+      };
+
+      localStorage.setItem("checkout", JSON.stringify(checkoutProduct));
+      localStorage.removeItem("cart");
+      window.location.href = "payment.html";
+    }
+
+    function updateCartCount() {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      document.getElementById('cart-count').textContent = cart.length;
+    }
+
+    updateCartCount();
+
+    function toggleWishlist(elem, product) {
+      let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const index = wishlist.findIndex(item => item.name === product.name);
+      if (index >= 0) {
+        wishlist.splice(index, 1);
+        elem.classList.remove("added");
+        elem.textContent = "🤍";
+        alert(`${product.name} removed from wishlist.`);
+      } else {
+        wishlist.push(product);
+        elem.classList.add("added");
+        elem.textContent = "❤️";
+        alert(`${product.name} added to wishlist.`);
+      }
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById("searchInput");
+
+    searchInput.addEventListener("input", function () {
+      const value = this.value.toLowerCase();
+      suggestionsBox.innerHTML = '';
+      if (value.length === 0) {
+        suggestionsBox.style.display = "none";
+        return;
+      }
+
+      const matches = products.filter(p => p.name.toLowerCase().includes(value));
+
+      if (matches.length > 0) {
+        suggestionsBox.style.display = "block";
+        matches.forEach(p => {
+          const div = document.createElement('div');
+          div.textContent = p.name;
+          div.onclick = () => {
+            searchInput.value = p.name;
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.style.display = "none";
+            bringToTopAndHighlight(p);
+          };
+          suggestionsBox.appendChild(div);
+        });
+
+        bringToTopAndHighlight(matches[0]);
+      } else {
+        suggestionsBox.style.display = "block";
+        const noResultDiv = document.createElement("div");
+        noResultDiv.textContent = " No results found";
+        noResultDiv.style.color = "red";
+        noResultDiv.style.padding = "10px";
+        suggestionsBox.appendChild(noResultDiv);
+      }
+    });
+
+    function bringToTopAndHighlight(product) {
+      const index = products.findIndex(p => p.id === product.id);
+      if (index > -1) {
+        const [found] = products.splice(index, 1);
+        products.unshift(found);
+        renderProducts(products);
+        setTimeout(() => {
+          const target = document.getElementById(`product-${found.id}`);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            target.classList.add("highlight");
+            setTimeout(() => target.classList.remove("highlight"), 2000);
+          }
+        }, 100);
+      }
+    }
+  </script>
+</body>
+
+</html>
